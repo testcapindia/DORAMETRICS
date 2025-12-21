@@ -1,0 +1,33 @@
+name: DORA Metrics Tracker
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  track-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Record Deployment
+        run: |
+          mkdir -p metrics
+          
+          # Create CSV if doesn't exist
+          if [ ! -f metrics/dora-data.csv ]; then
+            echo "Date,Timestamp,Event,Repository,PR_Number,Lead_Time_Hours,Actor,Success,Notes" > metrics/dora-data.csv
+          fi
+          
+          # Add deployment record
+          echo "$(date -I),$(date -u +"%Y-%m-%d %H:%M:%S"),deployment,${{ github.repository }},1,24,${{ github.actor }},true,Sample deployment" >> metrics/dora-data.csv
+          
+      - name: Commit metrics
+        run: |
+          git config user.name "DORA Bot"
+          git config user.email "bot@example.com"
+          git add metrics/
+          git diff --staged --quiet || git commit -m "📊 Update metrics"
+          git push || echo "Nothing to push"
