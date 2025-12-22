@@ -1,0 +1,51 @@
+name: DORA Metrics Dashboard
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday 6AM IST
+  workflow_dispatch:  # Manual trigger button
+
+jobs:
+  calculate-dora:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Calculate DORA Metrics
+      id: dora
+      uses: stenjo/devops-metrics-action@v1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        days: 90  # Last 3 months
+    
+    - name: Create Metrics Summary
+      run: |
+        echo "# DORA Metrics for DORAMETRICS" > SUMMARY.md
+        echo "## Deployment Frequency: ${{ steps.dora.outputs.deployment-frequency }}/day" >> SUMMARY.md
+        echo "## Lead Time: ${{ steps.dora.outputs.lead-time }} days" >> SUMMARY.md
+        echo "## Change Failure Rate: ${{ steps.dora.outputs.change-failure-rate }}%" >> SUMMARY.md
+        echo "## Time to Restore: ${{ steps.dora.outputs.time-to-restore }} hours" >> SUMMARY.md
+        echo "" >> SUMMARY.md
+        echo "Date: $(date)" >> SUMMARY.md
+        echo "Repo: Disha67/DORAMETRICS" >> SUMMARY.md
+        
+    - name: Create CSV for Excel
+      run: |
+        cat > dora-metrics.csv << EOF
+        Date,Deployment_Frequency,Lead_Time,CFR,MTTR,Repo
+        $(date +%Y-%m-%d),${{ steps.dora.outputs.deployment-frequency }},${{ steps.dora.outputs.lead-time }},${{ steps.dora.outputs.change-failure-rate }},${{ steps.dora.outputs.time-to-restore }},Disha67/DORAMETRICS
+        EOF
+    
+    - name: Upload CSV Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dora-metrics-DORAMETRICS
+        path: dora-metrics.csv
+        retention-days: 30
+    
+    - name: Commit SUMMARY.md
+      run: |
+        git config user.name "DORA Bot"
+        git config user.email "dora-bot@github.com"
+        git add SUMMARY.md
+        git commit -m "Update DORA metrics $(date +%Y-%m-%d)" || echo "No changes"
+        git push
