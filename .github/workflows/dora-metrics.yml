@@ -1,5 +1,10 @@
 name: DORA Metrics Tracker
 
+permissions:
+  contents: write       # allow git push
+  actions: read
+  issues: read
+
 on:
   workflow_dispatch:
   push:
