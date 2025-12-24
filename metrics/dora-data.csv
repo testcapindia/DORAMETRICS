@@ -41,3 +41,4 @@ Date,Timestamp,Event,Repository,PR_Number,Lead_Time_Hours,Actor,Success,Notes
 2024-12-20,2024-12-20 09:45:00,incident,Disha67/DORAMETRICS,210,6,ops-team,true,Database replica lag
 2025-12-22,2025-12-22 18:57:09,deployment,Disha67/DORAMETRICS,1,24,Disha67,true,Sample deployment
 2025-12-22,2025-12-22 18:58:57,deployment,Disha67/DORAMETRICS,1,24,Disha67,true,Sample deployment
+2025-12-24,2025-12-24 09:06:12,deployment,testcapindia/DORAMETRICS,1,24,testcapindia,true,Sample deployment
